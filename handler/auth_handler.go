@@ -21,6 +21,7 @@ func NewAuthHandler(s service.AuthService) *authHandler {
 }
 
 // Method
+// Register
 func (h *authHandler) Register(c *gin.Context) {
 
 	var register dto.RegisterRequest
@@ -31,7 +32,7 @@ func (h *authHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// method register service
+	// register service
 	if err := h.service.Register(&register); err != nil {
 		errorhandler.HandleError(c, err)
 		return
@@ -44,5 +45,34 @@ func (h *authHandler) Register(c *gin.Context) {
 	})
 
 	c.JSON(http.StatusCreated, res)
+
+}
+
+// Login
+func (h *authHandler) Login(c *gin.Context) {
+	var login dto.LoginRequest
+
+	// binding request body json to type
+	err := c.ShouldBindJSON(&login)
+	if err != nil {
+		errorhandler.HandleError(c, &errorhandler.BadRequestError{Message: err.Error()})
+		return
+	}
+
+	// login service
+	result, err := h.service.Login(&login)
+	if err != nil {
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	// response body
+	res := helper.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "Login Succesfully",
+		Data:       result,
+	})
+
+	c.JSON(http.StatusOK, res)
 
 }
