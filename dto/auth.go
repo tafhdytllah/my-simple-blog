@@ -1,9 +1,9 @@
 package dto
 
 type RegisterRequest struct {
-	Name                string `json:"name"`
-	Email               string `json:"email"`
-	Password            string `json:"password"`
-	PasswordConfirmaion string `json:"password_confirm"`
-	Gender              string `json:"gender"`
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	Password        string `json:"password"`
+	PasswordConfirm string `json:"password_confirm"`
+	Gender          string `json:"gender"`
 }
