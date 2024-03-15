@@ -4,9 +4,9 @@ import "time"
 
 type User struct {
 	ID        int
-	Name      string
 	Email     string
 	Password  string
+	Name      string
 	Gender    string
 	CreatedAt time.Time
 	UpdatedAt time.Time
