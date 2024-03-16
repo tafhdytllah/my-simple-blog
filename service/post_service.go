@@ -17,6 +17,7 @@ type PostService interface {
 	FindArticleById(ID int) (entity.Post, error)
 	FindArticleByTitle(title string) ([]entity.Post, error)
 	UpdateArticle(ID int, req dto.PostRequest) (entity.Post, error)
+	DeleteArticle(ID int) error
 }
 
 type postService struct {
@@ -27,6 +28,25 @@ func NewPostService(r repository.PostRepository) *postService {
 	return &postService{
 		repository: r,
 	}
+}
+
+func (s *postService) DeleteArticle(ID int) error {
+	// check article is exist
+	article, err := s.repository.FindArticleById(ID)
+	if err != nil {
+		return &errorhandler.NotFoundError{
+			Message: err.Error(),
+		}
+	}
+
+	err = s.repository.DeleteArticle(article)
+	if err != nil {
+		return &errorhandler.InternalServerError{
+			Message: err.Error(),
+		}
+	}
+
+	return nil
 }
 
 func (s *postService) UpdateArticle(ID int, req dto.PostRequest) (entity.Post, error) {

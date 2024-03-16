@@ -12,6 +12,7 @@ type PostRepository interface {
 	FindArticleById(ID int) (entity.Post, error)
 	FindArticleByTitle(title string) ([]entity.Post, error)
 	UpdateArticle(post entity.Post) (entity.Post, error)
+	DeleteArticle(post entity.Post) error
 }
 
 type postRepository struct {
@@ -22,6 +23,14 @@ func NewPostRepository(db *gorm.DB) *postRepository {
 	return &postRepository{
 		db: db,
 	}
+}
+
+// delete record by id
+func (r *postRepository) DeleteArticle(post entity.Post) error {
+
+	err := r.db.Delete(&post).Error
+
+	return err
 }
 
 // update record by id

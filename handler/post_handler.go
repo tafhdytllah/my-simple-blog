@@ -25,6 +25,25 @@ func NewPostHandler(s service.PostService) *postHandler {
 	}
 }
 
+// Delete Article by id
+func (h *postHandler) DeleteArticle(c *gin.Context) {
+	ID, _ := strconv.Atoi(c.Param("id"))
+
+	err := h.service.DeleteArticle(ID)
+	if err != nil {
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	res := helper.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "Article is deleted",
+	})
+
+	c.JSON(http.StatusOK, res)
+
+}
+
 // Update Article
 func (h *postHandler) UpdateArticle(c *gin.Context) {
 	var postRequest dto.PostRequest

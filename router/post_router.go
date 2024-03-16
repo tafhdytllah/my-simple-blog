@@ -24,4 +24,5 @@ func PostRouter(api *gin.RouterGroup) {
 	r.GET("/:id", postHandler.GetArticle)
 	r.GET("/q", postHandler.GetArticleByTitle)
 	r.PUT("/:id", postHandler.UpdateArticle)
+	r.DELETE("/:id", postHandler.DeleteArticle)
 }
