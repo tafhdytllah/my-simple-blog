@@ -13,6 +13,7 @@ type PostService interface {
 	CreateArticle(req *dto.PostRequest) error
 	FindArticles() ([]entity.Post, error)
 	FindArticleById(ID int) (entity.Post, error)
+	FindArticleByTitle(title string) ([]entity.Post, error)
 }
 
 type postService struct {
@@ -25,29 +26,45 @@ func NewPostService(r repository.PostRepository) *postService {
 	}
 }
 
+func (s *postService) FindArticleByTitle(title string) ([]entity.Post, error) {
+	articles, err := s.repository.FindArticleByTitle(title)
+	if err != nil {
+		return []entity.Post{}, &errorhandler.InternalServerError{
+			Message: err.Error(),
+		}
+	}
+
+	return articles, nil
+}
+
 func (s *postService) FindArticleById(ID int) (entity.Post, error) {
 	article, err := s.repository.FindArticleById(ID)
 
 	if err != nil {
 		// article not found
 		if err == gorm.ErrRecordNotFound {
-			return article, &errorhandler.NotFoundError{
+			return entity.Post{}, &errorhandler.NotFoundError{
 				Message: "Article not found",
 			}
 		}
 
-		return article, &errorhandler.InternalServerError{
+		return entity.Post{}, &errorhandler.InternalServerError{
 			Message: err.Error(),
 		}
 	}
 
-	return article, err
+	return article, nil
 }
 
 func (s *postService) FindArticles() ([]entity.Post, error) {
 	articles, err := s.repository.FindArticles()
+	if err != nil {
+		return []entity.Post{}, &errorhandler.InternalServerError{
+			Message: err.Error(),
+		}
+	}
 
-	return articles, err
+	return articles, nil
 }
 
 func (s *postService) CreateArticle(req *dto.PostRequest) error {

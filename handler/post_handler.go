@@ -25,7 +25,26 @@ func NewPostHandler(s service.PostService) *postHandler {
 	}
 }
 
-// Get Article
+// Get Article title
+func (h *postHandler) GetArticleByTitle(c *gin.Context) {
+	title := c.Query("title")
+
+	result, err := h.service.FindArticleByTitle(title)
+	if err != nil {
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	res := helper.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "Success get articles",
+		Data:       result,
+	})
+
+	c.JSON(http.StatusOK, res)
+}
+
+// Get Article by id
 func (h *postHandler) GetArticle(c *gin.Context) {
 	ID, _ := strconv.Atoi(c.Param("id"))
 
