@@ -24,6 +24,23 @@ func NewPostHandler(s service.PostService) *postHandler {
 	}
 }
 
+func (h *postHandler) FindArticles(c *gin.Context) {
+	result, err := h.service.FindArticles()
+	if err != nil {
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	res := helper.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "Success get articles",
+		Data:       result,
+	})
+
+	c.JSON(http.StatusOK, res)
+
+}
+
 func (h *postHandler) Create(c *gin.Context) {
 	var post dto.PostRequest
 

@@ -9,6 +9,7 @@ import (
 
 type PostService interface {
 	Create(req *dto.PostRequest) error
+	FindArticles() ([]entity.Post, error)
 }
 
 type postService struct {
@@ -19,6 +20,12 @@ func NewPostService(r repository.PostRepository) *postService {
 	return &postService{
 		repository: r,
 	}
+}
+
+func (s *postService) FindArticles() ([]entity.Post, error) {
+	articles, err := s.repository.FindArticles()
+
+	return articles, err
 }
 
 func (s *postService) Create(req *dto.PostRequest) error {
