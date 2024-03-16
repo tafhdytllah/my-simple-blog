@@ -56,8 +56,8 @@ func (h *postHandler) Create(c *gin.Context) {
 		post.Picture.Filename = fmt.Sprintf("%s/public/picture/%s", c.Request.Host, newFileName)
 	}
 
-	// userID, _ := c.Get("userID")
-	post.UserID = 1
+	userID, _ := c.Get("userID")
+	post.UserID = userID.(int)
 
 	//pass data to create service
 	if err := h.service.Create(&post); err != nil {

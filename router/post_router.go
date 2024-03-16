@@ -3,6 +3,7 @@ package router
 import (
 	"my-simple-blog/config"
 	"my-simple-blog/handler"
+	"my-simple-blog/middleware"
 	"my-simple-blog/repository"
 	"my-simple-blog/service"
 
@@ -15,6 +16,8 @@ func PostRouter(api *gin.RouterGroup) {
 	postHandler := handler.NewPostHandler(postService)
 
 	r := api.Group("/articles")
+
+	r.Use(middleware.JWTMiddleware())
 
 	r.POST("/", postHandler.Create)
 }
