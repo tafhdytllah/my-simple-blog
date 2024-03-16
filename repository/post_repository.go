@@ -1,14 +1,16 @@
 package repository
 
 import (
+	"fmt"
 	"my-simple-blog/entity"
 
 	"gorm.io/gorm"
 )
 
 type PostRepository interface {
-	Create(post *entity.Post) error
+	CreateArticle(post *entity.Post) error
 	FindArticles() ([]entity.Post, error)
+	FindArticleById(ID int) (entity.Post, error)
 }
 
 type postRepository struct {
@@ -21,6 +23,16 @@ func NewPostRepository(db *gorm.DB) *postRepository {
 	}
 }
 
+func (r *postRepository) FindArticleById(ID int) (entity.Post, error) {
+	var article entity.Post
+
+	err := r.db.Find(&article, "id = ?", ID).Error
+
+	fmt.Println(article)
+
+	return article, err
+}
+
 func (r *postRepository) FindArticles() ([]entity.Post, error) {
 	var articles []entity.Post
 
@@ -29,7 +41,7 @@ func (r *postRepository) FindArticles() ([]entity.Post, error) {
 	return articles, err
 }
 
-func (r *postRepository) Create(post *entity.Post) error {
+func (r *postRepository) CreateArticle(post *entity.Post) error {
 	result := r.db.Create(&post)
 	return result.Error
 }

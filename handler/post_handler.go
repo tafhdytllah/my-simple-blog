@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -24,7 +25,27 @@ func NewPostHandler(s service.PostService) *postHandler {
 	}
 }
 
-func (h *postHandler) FindArticles(c *gin.Context) {
+// Get Article
+func (h *postHandler) GetArticle(c *gin.Context) {
+	ID, _ := strconv.Atoi(c.Param("id"))
+
+	result, err := h.service.FindArticleById(ID)
+	if err != nil {
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	res := helper.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "Success get article",
+		Data:       result,
+	})
+
+	c.JSON(http.StatusOK, res)
+}
+
+// Get All Article
+func (h *postHandler) GetArticles(c *gin.Context) {
 	result, err := h.service.FindArticles()
 	if err != nil {
 		errorhandler.HandleError(c, err)
@@ -41,7 +62,8 @@ func (h *postHandler) FindArticles(c *gin.Context) {
 
 }
 
-func (h *postHandler) Create(c *gin.Context) {
+// Create New Article
+func (h *postHandler) CreateArticle(c *gin.Context) {
 	var post dto.PostRequest
 
 	// bind form data request to type post
@@ -77,7 +99,7 @@ func (h *postHandler) Create(c *gin.Context) {
 	post.UserID = userID.(int)
 
 	//pass data to create service
-	if err := h.service.Create(&post); err != nil {
+	if err := h.service.CreateArticle(&post); err != nil {
 		errorhandler.HandleError(c, err)
 		return
 	}

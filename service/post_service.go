@@ -8,8 +8,9 @@ import (
 )
 
 type PostService interface {
-	Create(req *dto.PostRequest) error
+	CreateArticle(req *dto.PostRequest) error
 	FindArticles() ([]entity.Post, error)
+	FindArticleById(ID int) (entity.Post, error)
 }
 
 type postService struct {
@@ -22,13 +23,25 @@ func NewPostService(r repository.PostRepository) *postService {
 	}
 }
 
+func (s *postService) FindArticleById(ID int) (entity.Post, error) {
+	article, err := s.repository.FindArticleById(ID)
+
+	if article.ID == 0 {
+		return article, &errorhandler.NotFoundError{
+			Message: "Article not found",
+		}
+	}
+
+	return article, err
+}
+
 func (s *postService) FindArticles() ([]entity.Post, error) {
 	articles, err := s.repository.FindArticles()
 
 	return articles, err
 }
 
-func (s *postService) Create(req *dto.PostRequest) error {
+func (s *postService) CreateArticle(req *dto.PostRequest) error {
 	// set value post
 	post := entity.Post{
 		UserID:  req.UserID,
@@ -41,7 +54,7 @@ func (s *postService) Create(req *dto.PostRequest) error {
 		post.PictureUrl = &req.Picture.Filename
 	}
 
-	if err := s.repository.Create(&post); err != nil {
+	if err := s.repository.CreateArticle(&post); err != nil {
 		return &errorhandler.InternalServerError{
 			Message: err.Error(),
 		}
