@@ -27,49 +27,35 @@ func NewPostHandler(s service.PostService) *postHandler {
 
 // Update Article
 func (h *postHandler) UpdateArticle(c *gin.Context) {
-	var postReq dto.PostRequest
+	var postRequest dto.PostRequest
 
 	// bind form data request to type post
-	if err := c.ShouldBind(&postReq); err != nil {
-		// var ve validator.ValidationErrors
-
-		// if errors.As(err, &ve) {
-		// 	errMessages := []string{}
-		// 	for _, e := range err.(validator.ValidationErrors) {
-		// 		errM := fmt.Sprintf("Error on field %s, condition: %s", e.Field(), e.ActualTag())
-		// 		errMessages = append(errMessages, errM)
-		// 	}
-
-		// 	errorhandler.HandleError(c, &errorhandler.BadRequestError{
-		// 		Message: strings.Join(errMessages, " "),
-		// 	})
-
-		// 	return
-		// }
+	if err := c.ShouldBind(&postRequest); err != nil {
 
 		errorhandler.HandleError(c, &errorhandler.BadRequestError{
 			Message: err.Error(),
 		})
+
 		return
 	}
 
 	// if form image data is exist save to local
-	if postReq.Picture != nil {
+	if postRequest.Picture != nil {
 
 		// rename file
-		ext := filepath.Ext(postReq.Picture.Filename)
+		ext := filepath.Ext(postRequest.Picture.Filename)
 		newFileName := uuid.New().String() + ext
 
 		// save image to local dir
 		dst := filepath.Join("public/picture", filepath.Base(newFileName))
-		c.SaveUploadedFile(postReq.Picture, dst)
+		c.SaveUploadedFile(postRequest.Picture, dst)
 
-		postReq.Picture.Filename = fmt.Sprintf("%s/public/picture/%s", c.Request.Host, newFileName)
+		postRequest.Picture.Filename = fmt.Sprintf("%s/public/picture/%s", c.Request.Host, newFileName)
 	}
 
 	ID, _ := strconv.Atoi(c.Param("id"))
 
-	result, err := h.service.UpdateArticle(ID, &postReq)
+	result, err := h.service.UpdateArticle(ID, postRequest)
 	if err != nil {
 		errorhandler.HandleError(c, err)
 		return

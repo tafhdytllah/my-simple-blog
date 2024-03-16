@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"my-simple-blog/dto"
 	"my-simple-blog/entity"
 	"my-simple-blog/errorhandler"
@@ -15,7 +16,7 @@ type PostService interface {
 	FindArticles() ([]entity.Post, error)
 	FindArticleById(ID int) (entity.Post, error)
 	FindArticleByTitle(title string) ([]entity.Post, error)
-	UpdateArticle(ID int, req *dto.PostRequest) (entity.Post, error)
+	UpdateArticle(ID int, req dto.PostRequest) (entity.Post, error)
 }
 
 type postService struct {
@@ -28,7 +29,10 @@ func NewPostService(r repository.PostRepository) *postService {
 	}
 }
 
-func (s *postService) UpdateArticle(ID int, req *dto.PostRequest) (entity.Post, error) {
+func (s *postService) UpdateArticle(ID int, req dto.PostRequest) (entity.Post, error) {
+
+	newTitle := strings.TrimSpace(req.Title)
+	newContent := strings.TrimSpace(req.Content)
 
 	article, err := s.FindArticleById(ID)
 	if err != nil {
@@ -37,16 +41,13 @@ func (s *postService) UpdateArticle(ID int, req *dto.PostRequest) (entity.Post, 
 		}
 	}
 
-	article = entity.Post{
-		ID:      article.ID,
-		UserID:  article.UserID,
-		Title:   strings.TrimSpace(req.Title),
-		Content: strings.TrimSpace(req.Content),
-	}
-
+	article.Title = newTitle
+	article.Content = newContent
 	if req.Picture != nil {
 		article.PictureUrl = &req.Picture.Filename
 	}
+
+	fmt.Println(article)
 
 	updatedArticle, err := s.repository.UpdateArticle(article)
 	if err != nil {
