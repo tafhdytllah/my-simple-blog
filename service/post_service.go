@@ -5,6 +5,7 @@ import (
 	"my-simple-blog/entity"
 	"my-simple-blog/errorhandler"
 	"my-simple-blog/repository"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ type PostService interface {
 	FindArticles() ([]entity.Post, error)
 	FindArticleById(ID int) (entity.Post, error)
 	FindArticleByTitle(title string) ([]entity.Post, error)
+	UpdateArticle(ID int, req *dto.PostRequest) (entity.Post, error)
 }
 
 type postService struct {
@@ -24,6 +26,36 @@ func NewPostService(r repository.PostRepository) *postService {
 	return &postService{
 		repository: r,
 	}
+}
+
+func (s *postService) UpdateArticle(ID int, req *dto.PostRequest) (entity.Post, error) {
+
+	article, err := s.FindArticleById(ID)
+	if err != nil {
+		return entity.Post{}, &errorhandler.BadRequestError{
+			Message: err.Error(),
+		}
+	}
+
+	article = entity.Post{
+		ID:      article.ID,
+		UserID:  article.UserID,
+		Title:   strings.TrimSpace(req.Title),
+		Content: strings.TrimSpace(req.Content),
+	}
+
+	if req.Picture != nil {
+		article.PictureUrl = &req.Picture.Filename
+	}
+
+	updatedArticle, err := s.repository.UpdateArticle(article)
+	if err != nil {
+		return entity.Post{}, &errorhandler.InternalServerError{
+			Message: err.Error(),
+		}
+	}
+
+	return updatedArticle, nil
 }
 
 func (s *postService) FindArticleByTitle(title string) ([]entity.Post, error) {

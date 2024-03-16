@@ -11,6 +11,7 @@ type PostRepository interface {
 	FindArticles() ([]entity.Post, error)
 	FindArticleById(ID int) (entity.Post, error)
 	FindArticleByTitle(title string) ([]entity.Post, error)
+	UpdateArticle(post entity.Post) (entity.Post, error)
 }
 
 type postRepository struct {
@@ -21,6 +22,14 @@ func NewPostRepository(db *gorm.DB) *postRepository {
 	return &postRepository{
 		db: db,
 	}
+}
+
+// update record by id
+func (r *postRepository) UpdateArticle(post entity.Post) (entity.Post, error) {
+
+	err := r.db.Save(&post).Error
+
+	return post, err
 }
 
 // get record with string condition

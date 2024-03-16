@@ -23,4 +23,5 @@ func PostRouter(api *gin.RouterGroup) {
 	r.GET("/", postHandler.GetArticles)
 	r.GET("/:id", postHandler.GetArticle)
 	r.GET("/q", postHandler.GetArticleByTitle)
+	r.PUT("/:id", postHandler.UpdateArticle)
 }

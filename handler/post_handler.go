@@ -25,6 +25,65 @@ func NewPostHandler(s service.PostService) *postHandler {
 	}
 }
 
+// Update Article
+func (h *postHandler) UpdateArticle(c *gin.Context) {
+	var postReq dto.PostRequest
+
+	// bind form data request to type post
+	if err := c.ShouldBind(&postReq); err != nil {
+		// var ve validator.ValidationErrors
+
+		// if errors.As(err, &ve) {
+		// 	errMessages := []string{}
+		// 	for _, e := range err.(validator.ValidationErrors) {
+		// 		errM := fmt.Sprintf("Error on field %s, condition: %s", e.Field(), e.ActualTag())
+		// 		errMessages = append(errMessages, errM)
+		// 	}
+
+		// 	errorhandler.HandleError(c, &errorhandler.BadRequestError{
+		// 		Message: strings.Join(errMessages, " "),
+		// 	})
+
+		// 	return
+		// }
+
+		errorhandler.HandleError(c, &errorhandler.BadRequestError{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	// if form image data is exist save to local
+	if postReq.Picture != nil {
+
+		// rename file
+		ext := filepath.Ext(postReq.Picture.Filename)
+		newFileName := uuid.New().String() + ext
+
+		// save image to local dir
+		dst := filepath.Join("public/picture", filepath.Base(newFileName))
+		c.SaveUploadedFile(postReq.Picture, dst)
+
+		postReq.Picture.Filename = fmt.Sprintf("%s/public/picture/%s", c.Request.Host, newFileName)
+	}
+
+	ID, _ := strconv.Atoi(c.Param("id"))
+
+	result, err := h.service.UpdateArticle(ID, &postReq)
+	if err != nil {
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	res := helper.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "article is updated",
+		Data:       result,
+	})
+
+	c.JSON(http.StatusOK, res)
+}
+
 // Get Article title
 func (h *postHandler) GetArticleByTitle(c *gin.Context) {
 	title := c.Query("title")
