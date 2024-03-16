@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"my-simple-blog/entity"
 
 	"gorm.io/gorm"
@@ -26,9 +25,7 @@ func NewPostRepository(db *gorm.DB) *postRepository {
 func (r *postRepository) FindArticleById(ID int) (entity.Post, error) {
 	var article entity.Post
 
-	err := r.db.Find(&article, "id = ?", ID).Error
-
-	fmt.Println(article)
+	err := r.db.First(&article, ID).Error
 
 	return article, err
 }

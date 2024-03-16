@@ -5,6 +5,8 @@ import (
 	"my-simple-blog/entity"
 	"my-simple-blog/errorhandler"
 	"my-simple-blog/repository"
+
+	"gorm.io/gorm"
 )
 
 type PostService interface {
@@ -26,9 +28,16 @@ func NewPostService(r repository.PostRepository) *postService {
 func (s *postService) FindArticleById(ID int) (entity.Post, error) {
 	article, err := s.repository.FindArticleById(ID)
 
-	if article.ID == 0 {
-		return article, &errorhandler.NotFoundError{
-			Message: "Article not found",
+	if err != nil {
+		// article not found
+		if err == gorm.ErrRecordNotFound {
+			return article, &errorhandler.NotFoundError{
+				Message: "Article not found",
+			}
+		}
+
+		return article, &errorhandler.InternalServerError{
+			Message: err.Error(),
 		}
 	}
 
